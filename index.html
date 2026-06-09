@@ -32,7 +32,6 @@
 </head>
 <body class="gradient-bg text-white min-h-screen pb-12 overflow-x-hidden">
     <div class="max-w-6xl mx-auto px-5 pt-6">
-        <!-- Top Bar -->
         <div class="flex justify-between items-center mb-6 text-xs tracking-widest anime-font text-purple-400">
             <div>MADE BY SAMARTH</div>
             <div class="flex items-center gap-4">
@@ -40,16 +39,14 @@
             </div>
         </div>
 
-        <!-- Header -->
         <div class="text-center mb-10 scanline">
             <h1 class="title-font text-6xl md:text-7xl font-bold tracking-tighter neon-purple anime-slide">PRIVATE ID LOOKUP</h1>
             <p class="text-purple-300 mt-3 text-lg">Anime-Powered Leaked Database Scanner 2026</p>
         </div>
 
-        <!-- Input -->
         <div class="glass rounded-3xl p-8 mb-10 border border-purple-500/30">
             <div class="max-w-lg mx-auto">
-                <input id="username" type="text" placeholder="Enter IG username or ID" 
+                <input id="username" type="text" value="bom1::rvpjr-1781006979868-d3cc8e5388b6" 
                        class="w-full bg-black/60 border border-purple-500/50 focus:border-pink-500 rounded-2xl px-6 py-5 text-lg outline-none transition-all focus:ring-2 focus:ring-purple-500">
                 <button onclick="startExtraction()" 
                         class="mt-6 w-full bg-gradient-to-r from-purple-600 via-pink-600 to-violet-600 hover:brightness-110 py-5 rounded-2xl font-bold text-xl flex items-center justify-center gap-4 shadow-lg shadow-purple-500/50 transition-all active:scale-95">
@@ -60,7 +57,6 @@
             </div>
         </div>
 
-        <!-- Results -->
         <div id="results" class="hidden">
             <div class="glass rounded-3xl p-6 mb-8">
                 <div class="flex justify-between items-center">
@@ -78,11 +74,9 @@
                     </div>
                 </div>
             </div>
-
             <div id="gallery" class="gallery-grid"></div>
         </div>
 
-        <!-- Disclaimer -->
         <div class="glass mt-12 p-6 rounded-3xl text-xs leading-relaxed border border-red-500/30">
             <div class="flex items-start gap-3 text-red-400">
                 <i class="fas fa-exclamation-triangle mt-0.5"></i>
@@ -94,7 +88,6 @@
         </div>
     </div>
 
-    <!-- Lightbox -->
     <div id="lightbox" class="hidden fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-4">
         <div class="max-w-4xl w-full relative">
             <button onclick="closeLightbox()" class="absolute -top-16 right-4 text-6xl text-white/70 hover:text-red-500 transition">✕</button>
@@ -110,29 +103,59 @@
 
         async function startExtraction() {
             const input = document.getElementById('username').value.trim();
-            if (!input) return alert("ENTER ID OR USERNAME");
+            if (!input) return alert("ENTER ID");
 
             const status = document.getElementById('status');
-            status.innerHTML = `<span class="text-purple-400 animate-pulse">⚡ SCANNING LEAKED DATABASE...</span>`;
+            status.innerHTML = `<span class="text-purple-400 animate-pulse">⚡ SCANNING LEAKED DATABASE FOR ${input}...</span>`;
 
             try {
-                const apiUrl = `/api/scrape?username=${encodeURIComponent(input)}`;
-                const res = await fetch(apiUrl);
-                const data = await res.json();
+                // Multiple public CORS proxies fallback
+                const proxies = [
+                    'https://api.allorigins.win/raw?url=',
+                    'https://corsproxy.io/?',
+                    'https://api.codetabs.com/v1/proxy?quest='
+                ];
 
-                if (!data.success || !data.posts || data.posts.length === 0) {
-                    status.innerHTML = `<span class="text-red-400">NO LEAKED DATA FOUND OR BLOCKED</span>`;
+                let html = '';
+                for (let proxy of proxies) {
+                    try {
+                        const res = await fetch(proxy + encodeURIComponent(`https://www.instagram.com/${encodeURIComponent(input)}/`));
+                        if (res.ok) {
+                            html = await res.text();
+                            break;
+                        }
+                    } catch(e) {}
+                }
+
+                if (!html) throw new Error("All proxies failed");
+
+                // Parse like backend
+                const posts = extractFromHTML(html);
+                if (posts.length === 0) {
+                    status.innerHTML = `<span class="text-red-400">NO PUBLIC LEAKED ASSETS FOUND FOR THIS ID</span>`;
                     return;
                 }
 
                 currentImages = {};
-                data.posts.forEach((p, i) => currentImages[`leak_${i}`] = p.url);
+                posts.forEach((p, i) => currentImages[`leak_${i}`] = p.url);
 
-                renderGallery(input, data.posts);
-                status.innerHTML = '';
+                renderGallery(input, posts);
+                status.innerHTML = `<span class="text-emerald-400">✅ SCAN COMPLETE - ${posts.length} ASSETS</span>`;
             } catch(e) {
-                status.innerHTML = `<span class="text-yellow-400">Backend offline — deploy on Vercel or use proxy</span>`;
+                status.innerHTML = `<span class="text-yellow-400">Proxy blocked. Deploy Vercel backend or try VPN.</span>`;
             }
+        }
+
+        function extractFromHTML(html) {
+            let posts = [];
+            const matches = html.match(/https:\/\/[^"']*image_versions2[^"']*candidates[^"']*url[^"']*["'][^"']*["']/gi) || [];
+            matches.forEach(m => {
+                const urlMatch = m.match(/https:\/\/[^"']+/);
+                if (urlMatch) {
+                    posts.push({id: Date.now().toString().slice(-8), url: urlMatch[0]});
+                }
+            });
+            return [...new Set(posts.map(p => p.url))].map((url, i) => ({id: i, url}));
         }
 
         function renderGallery(username, posts) {
@@ -141,7 +164,7 @@
             results.classList.add('anime-slide');
 
             document.getElementById('profile-title').textContent = username.toUpperCase();
-            document.getElementById('stats-text').innerHTML = `✅ ${posts.length} LEAKED ASSETS FOUND IN DATABASE`;
+            document.getElementById('stats-text').innerHTML = `✅ ${posts.length} LEAKED ASSETS FOUND`;
 
             const gallery = document.getElementById('gallery');
             gallery.innerHTML = '';
@@ -157,7 +180,7 @@
                     </div>
                     <div class="p-5 flex justify-end">
                         <button onclick="downloadSingle('\( {post.url}', 'leak_ \){post.id}')" class="text-purple-400 hover:text-pink-400 flex items-center gap-2 text-sm">
-                            <i class="fas fa-download"></i> SAVE ASSET
+                            <i class="fas fa-download"></i> SAVE
                         </button>
                     </div>
                 `;
@@ -165,7 +188,7 @@
             });
         }
 
-        function openLightbox(url) {
+        function openLightbox(url) { 
             document.getElementById('lightbox').classList.remove('hidden');
             document.getElementById('lightbox-img').src = url;
             document.getElementById('lightbox-download').href = url;
@@ -177,9 +200,7 @@
 
         function downloadSingle(url, id) {
             const a = document.createElement('a');
-            a.href = url; 
-            a.download = `${id}.jpg`;
-            a.click();
+            a.href = url; a.download = `${id}.jpg`; a.click();
         }
 
         async function downloadAll() {
@@ -194,17 +215,17 @@
             const content = await zip.generateAsync({type:"blob"});
             const link = document.createElement('a');
             link.href = URL.createObjectURL(content);
-            link.download = "private_leaks.zip";
+            link.download = "bom1_leaks.zip";
             link.click();
         }
 
         function copyAllUrls() {
             const text = Object.values(currentImages).join('\n');
             navigator.clipboard.writeText(text);
-            alert("✅ ALL LEAKED URLS COPIED");
+            alert("✅ ALL URLS COPIED");
         }
 
         document.addEventListener('keydown', e => { if (e.key === "Escape") closeLightbox(); });
     </script>
 </body>
-                                                               </html>
+</html>
