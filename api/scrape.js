@@ -2,21 +2,32 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 
 module.exports = async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET');
+
   const { username } = req.query;
-  if (!username) return res.status(400).json({ error: "No username" });
+  if (!username) {
+    return res.status(400).json({ success: false, error: "Username required" });
+  }
 
   try {
     const headers = {
       'User-Agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Mobile Safari/537.36',
       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      'Accept-Language': 'en-GB,en;q=0.9',
     };
 
-    const response = await axios.get(`https://www.instagram.com/${username}/`, { headers, timeout: 15000 });
+    const response = await axios.get(`https://www.instagram.com/${encodeURIComponent(username)}/`, { 
+      headers, 
+      timeout: 20000,
+      maxRedirects: 5
+    });
+
     const html = response.data;
     const $ = cheerio.load(html);
     let posts = [];
 
-    $('script[type="application/json"]').each((i, script) => {
+    $('script[type="application/json"]').each((_, script) => {
       const content = $(script).html();
       if (content && (content.includes('image_versions2') || content.includes('polaris_timeline'))) {
         try {
@@ -35,7 +46,11 @@ module.exports = async (req, res) => {
       posts: uniquePosts.slice(0, 30)
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: "Fetch failed" });
+    console.error(error.message);
+    res.status(500).json({ 
+      success: false, 
+      error: "Instagram fetch failed. Account may be private or rate-limited." 
+    });
   }
 };
 
@@ -43,9 +58,13 @@ function extractPosts(obj) {
   let posts = [];
   function recurse(o) {
     if (!o) return;
-    if (o.image_versions2?.candidates) {
-      const best = o.image_versions2.candidates.sort((a, b) => (b.width||0)*(b.height||0) - (a.width||0)*(a.height||0))[0];
-      if (best?.url) posts.push({ id: o.pk || Date.now().toString(), url: best.url });
+    if (o.image_versions2?.candidates?.length) {
+      const best = o.image_versions2.candidates.sort((a, b) => 
+        (b.width || 0) * (b.height || 0) - (a.width || 0) * (a.height || 0)
+      )[0];
+      if (best?.url) {
+        posts.push({ id: o.pk || Date.now().toString(), url: best.url });
+      }
     }
     if (typeof o === 'object') Object.values(o).forEach(recurse);
   }
