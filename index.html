@@ -2,104 +2,106 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IG Private Vault • @botadminshere</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Private ID Lookup • 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Press+Start+2P&display=swap');
         body { font-family: 'Inter', system-ui, sans-serif; }
-        .gradient-bg { background: linear-gradient(135deg, #0f172a 0%, #1e2937 100%); }
-        .card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .card:hover { transform: translateY(-8px) scale(1.02); box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.4); }
-        .glass { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(16px); }
-        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; }
-        .lightbox { animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .title-font { font-family: 'Space Grotesk', sans-serif; }
+        .anime-font { font-family: 'Press Start 2P', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #0a0a0a 0%, #1a0033 50%, #000000 100%); }
+        .glass { background: rgba(10, 10, 20, 0.9); backdrop-filter: blur(20px); border: 1px solid rgba(167, 139, 250, 0.2); }
+        .neon-purple { text-shadow: 0 0 10px #a855f7, 0 0 20px #c026d3; }
+        .card { transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1); }
+        .card:hover { transform: translateY(-10px) rotate(1deg) scale(1.03); box-shadow: 0 0 40px rgba(168, 85, 247, 0.6); }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+        @media (max-width: 640px) { 
+            .gallery-grid { grid-template-columns: 1fr; gap: 16px; } 
+        }
+        .anime-slide { animation: animeSlide 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+        @keyframes animeSlide { from { opacity: 0; transform: translateY(40px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        .glow-pulse { animation: glowPulse 2s infinite alternate; }
+        @keyframes glowPulse { from { text-shadow: 0 0 10px #a855f7; } to { text-shadow: 0 0 30px #c026d3, 0 0 50px #7e22ce; } }
+        .scanline { position: relative; overflow: hidden; }
+        .scanline::after { content: ''; position: absolute; top: -100%; left: 0; width: 100%; height: 100%; background: linear-gradient(transparent, rgba(167,139,250,0.3), transparent); animation: scan 4s linear infinite; }
+        @keyframes scan { 0% { top: -100%; } 100% { top: 100%; } }
     </style>
 </head>
-<body class="gradient-bg text-white min-h-screen pb-12">
-    <div class="max-w-7xl mx-auto px-6 pt-8">
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-10">
-            <div>
-                <h1 class="text-5xl font-bold tracking-tight flex items-center gap-3">
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-400">IG</span> 
-                    PRIVATE VAULT
-                </h1>
-                <p class="text-slate-400 mt-2 text-lg">2026 Private Content Extractor • No Token • No Login</p>
-            </div>
-            <div class="flex items-center gap-4 text-sm">
-                <div class="px-4 py-2 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center gap-2">
-                    <i class="fas fa-shield-alt"></i> SECURE
-                </div>
-                <div onclick="window.location.reload()" class="cursor-pointer px-4 py-2 hover:bg-white/10 rounded-full flex items-center gap-2">
-                    <i class="fas fa-redo"></i> RESET
-                </div>
+<body class="gradient-bg text-white min-h-screen pb-12 overflow-x-hidden">
+    <div class="max-w-6xl mx-auto px-5 pt-6">
+        <!-- Top Bar -->
+        <div class="flex justify-between items-center mb-6 text-xs tracking-widest anime-font text-purple-400">
+            <div>MADE BY SAMARTH</div>
+            <div class="flex items-center gap-4">
+                <span class="glow-pulse">PRIVATE ID LOOKUP v2.0</span>
             </div>
         </div>
 
+        <!-- Header -->
+        <div class="text-center mb-10 scanline">
+            <h1 class="title-font text-6xl md:text-7xl font-bold tracking-tighter neon-purple anime-slide">PRIVATE ID LOOKUP</h1>
+            <p class="text-purple-300 mt-3 text-lg">Anime-Powered Leaked Database Scanner 2026</p>
+        </div>
+
         <!-- Input -->
-        <div class="glass border border-white/10 rounded-3xl p-8 mb-10">
-            <div class="max-w-md mx-auto">
-                <div class="text-center mb-6">
-                    <p class="text-slate-400">Enter target username</p>
-                </div>
-                <div class="flex gap-3">
-                    <input 
-                        id="username" 
-                        type="text" 
-                        placeholder="cristiano" 
-                        class="flex-1 bg-slate-900 border border-white/10 focus:border-purple-500 rounded-2xl px-6 py-5 text-lg outline-none transition"
-                    >
-                    <button 
-                        onclick="startExtraction()"
-                        class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 px-10 rounded-2xl font-semibold text-lg flex items-center gap-3"
-                    >
-                        <i class="fas fa-bolt"></i> EXTRACT
-                    </button>
-                </div>
-                <div id="status" class="mt-4 text-center text-sm"></div>
+        <div class="glass rounded-3xl p-8 mb-10 border border-purple-500/30">
+            <div class="max-w-lg mx-auto">
+                <input id="username" type="text" placeholder="Enter IG username or ID" 
+                       class="w-full bg-black/60 border border-purple-500/50 focus:border-pink-500 rounded-2xl px-6 py-5 text-lg outline-none transition-all focus:ring-2 focus:ring-purple-500">
+                <button onclick="startExtraction()" 
+                        class="mt-6 w-full bg-gradient-to-r from-purple-600 via-pink-600 to-violet-600 hover:brightness-110 py-5 rounded-2xl font-bold text-xl flex items-center justify-center gap-4 shadow-lg shadow-purple-500/50 transition-all active:scale-95">
+                    <i class="fas fa-bolt"></i> 
+                    <span class="anime-font">SCAN DATABASE</span>
+                </button>
+                <div id="status" class="mt-5 text-center text-sm min-h-[30px]"></div>
             </div>
         </div>
 
         <!-- Results -->
         <div id="results" class="hidden">
-            <div class="flex justify-between items-end mb-6">
-                <div>
-                    <h2 id="profile-title" class="text-3xl font-semibold"></h2>
-                    <p id="stats-text" class="text-slate-400"></p>
-                </div>
-                <div class="flex gap-3">
-                    <button onclick="downloadAll()" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-6 py-3 rounded-2xl">
-                        <i class="fas fa-download"></i> Download All
-                    </button>
-                    <button onclick="copyAllUrls()" class="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-6 py-3 rounded-2xl">
-                        <i class="fas fa-copy"></i> Copy URLs
-                    </button>
+            <div class="glass rounded-3xl p-6 mb-8">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 id="profile-title" class="text-3xl font-bold neon-purple"></h2>
+                        <p id="stats-text" class="text-purple-300"></p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="downloadAll()" class="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-2xl flex items-center gap-2">
+                            <i class="fas fa-file-archive"></i> ZIP ALL
+                        </button>
+                        <button onclick="copyAllUrls()" class="px-6 py-3 bg-white/10 hover:bg-white/20 rounded-2xl flex items-center gap-2">
+                            <i class="fas fa-copy"></i> COPY
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <div id="gallery" class="gallery-grid"></div>
         </div>
 
-        <!-- Empty State -->
-        <div id="empty" class="text-center py-20">
-            <div class="mx-auto w-24 h-24 bg-white/5 rounded-3xl flex items-center justify-center text-5xl mb-6">📸</div>
-            <p class="text-slate-400 text-xl">Enter a username to unlock private gallery</p>
+        <!-- Disclaimer -->
+        <div class="glass mt-12 p-6 rounded-3xl text-xs leading-relaxed border border-red-500/30">
+            <div class="flex items-start gap-3 text-red-400">
+                <i class="fas fa-exclamation-triangle mt-0.5"></i>
+                <div>
+                    <strong>DISCLAIMER:</strong> All results are pulled from public leaked databases. This tool shows data that has already been leaked online. 
+                    Use only for educational / verification purposes. Samarth holds no responsibility for any misuse.
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Lightbox -->
-    <div id="lightbox" class="hidden fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4">
-        <div class="max-w-5xl w-full relative">
-            <button onclick="closeLightbox()" class="absolute -top-12 right-0 text-white text-4xl hover:text-red-500">×</button>
-            <img id="lightbox-img" class="max-h-[90vh] mx-auto rounded-3xl shadow-2xl" alt="">
-            <div class="text-center mt-4">
-                <a id="lightbox-download" href="#" download class="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 px-8 py-4 rounded-2xl">
-                    <i class="fas fa-download"></i> Download Full Resolution
-                </a>
-            </div>
+    <div id="lightbox" class="hidden fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-4">
+        <div class="max-w-4xl w-full relative">
+            <button onclick="closeLightbox()" class="absolute -top-16 right-4 text-6xl text-white/70 hover:text-red-500 transition">✕</button>
+            <img id="lightbox-img" class="w-full rounded-3xl shadow-2xl" alt="">
+            <a id="lightbox-download" href="#" download class="mt-6 mx-auto block w-fit px-10 py-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl text-center">
+                DOWNLOAD FULL RESOLUTION
+            </a>
         </div>
     </div>
 
@@ -107,94 +109,55 @@
         let currentImages = {};
 
         async function startExtraction() {
-            const username = document.getElementById('username').value.trim();
-            if (!username) return alert("Enter username");
+            const input = document.getElementById('username').value.trim();
+            if (!input) return alert("ENTER ID OR USERNAME");
 
             const status = document.getElementById('status');
-            status.innerHTML = `<span class="text-cyan-400">🔄 Fetching private content for @${username}...</span>`;
+            status.innerHTML = `<span class="text-purple-400 animate-pulse">⚡ SCANNING LEAKED DATABASE...</span>`;
 
             try {
-                // Real proxy + parsing (works better on Vercel with your own proxy if needed)
-                const proxy = 'https://api.allorigins.win/raw?url=';
-                const response = await fetch(proxy + encodeURIComponent(`https://www.instagram.com/${username}/`));
-                const html = await response.text();
+                const apiUrl = `/api/scrape?username=${encodeURIComponent(input)}`;
+                const res = await fetch(apiUrl);
+                const data = await res.json();
 
-                // Extract JSON data (same logic as your Python script)
-                const scriptMatch = html.match(/<script type="application\/json"[^>]*>(.*?)<\/script>/gs);
-                let posts = [];
-                
-                if (scriptMatch) {
-                    for (let script of scriptMatch) {
-                        if (script.includes('image_versions2') || script.includes('polaris_timeline')) {
-                            try {
-                                const jsonStr = script.match(/>({.*})</)[1];
-                                const data = JSON.parse(jsonStr);
-                                // Recursive extract (simplified)
-                                posts = extractPosts(data);
-                                if (posts.length > 0) break;
-                            } catch(e) {}
-                        }
-                    }
-                }
-
-                if (posts.length === 0) {
-                    // Fallback demo for show
-                    posts = [
-                        {id: "demo1", url: "https://picsum.photos/id/1015/1200/800"},
-                        {id: "demo2", url: "https://picsum.photos/id/106/1200/800"},
-                        {id: "demo3", url: "https://picsum.photos/id/201/1200/800"}
-                    ];
+                if (!data.success || !data.posts || data.posts.length === 0) {
+                    status.innerHTML = `<span class="text-red-400">NO LEAKED DATA FOUND OR BLOCKED</span>`;
+                    return;
                 }
 
                 currentImages = {};
-                posts.forEach((p, i) => {
-                    currentImages[`post_${i}`] = p.url;
-                });
+                data.posts.forEach((p, i) => currentImages[`leak_${i}`] = p.url);
 
-                renderGallery(username, posts);
+                renderGallery(input, data.posts);
+                status.innerHTML = '';
             } catch(e) {
-                status.innerHTML = `<span class="text-red-400">❌ Direct fetch blocked. Use Vercel backend or proxy.</span>`;
+                status.innerHTML = `<span class="text-yellow-400">Backend offline — deploy on Vercel or use proxy</span>`;
             }
-        }
-
-        function extractPosts(obj) {
-            let posts = [];
-            function recurse(o) {
-                if (!o) return;
-                if (o.image_versions2 && o.image_versions2.candidates) {
-                    const best = o.image_versions2.candidates.sort((a,b) => (b.width||0)*(b.height||0) - (a.width||0)*(a.height||0))[0];
-                    if (best) posts.push({id: o.pk || Date.now(), url: best.url});
-                }
-                if (typeof o === 'object') {
-                    Object.values(o).forEach(recurse);
-                }
-            }
-            recurse(obj);
-            return posts;
         }
 
         function renderGallery(username, posts) {
-            document.getElementById('empty').classList.add('hidden');
             const results = document.getElementById('results');
             results.classList.remove('hidden');
+            results.classList.add('anime-slide');
 
-            document.getElementById('profile-title').textContent = `@${username}`;
-            document.getElementById('stats-text').innerHTML = `✅ <span class="text-emerald-400">${posts.length}</span> private posts extracted • Full HD`;
+            document.getElementById('profile-title').textContent = username.toUpperCase();
+            document.getElementById('stats-text').innerHTML = `✅ ${posts.length} LEAKED ASSETS FOUND IN DATABASE`;
 
             const gallery = document.getElementById('gallery');
             gallery.innerHTML = '';
 
-            posts.forEach(post => {
+            posts.forEach((post, index) => {
                 const div = document.createElement('div');
-                div.className = 'card glass border border-white/10 rounded-3xl overflow-hidden';
+                div.className = `card glass rounded-3xl overflow-hidden border border-purple-500/30 anime-slide`;
+                div.style.animationDelay = `${index * 80}ms`;
                 div.innerHTML = `
-                    <div class="relative">
+                    <div class="relative scanline">
                         <img src="\( {post.url}" class="w-full aspect-video object-cover cursor-pointer" onclick="openLightbox(' \){post.url}')">
-                        <div class="absolute top-3 right-3 bg-black/60 text-xs px-3 py-1 rounded-full">${post.id}</div>
+                        <div class="absolute top-3 left-3 bg-black/70 text-[10px] px-3 py-1 rounded font-mono">LEAK #${post.id}</div>
                     </div>
-                    <div class="p-5 flex justify-between items-center">
-                        <button onclick="downloadSingle('\( {post.url}', ' \){post.id}')" class="text-sm flex items-center gap-2 hover:text-purple-400">
-                            <i class="fas fa-download"></i> Full Res
+                    <div class="p-5 flex justify-end">
+                        <button onclick="downloadSingle('\( {post.url}', 'leak_ \){post.id}')" class="text-purple-400 hover:text-pink-400 flex items-center gap-2 text-sm">
+                            <i class="fas fa-download"></i> SAVE ASSET
                         </button>
                     </div>
                 `;
@@ -214,27 +177,34 @@
 
         function downloadSingle(url, id) {
             const a = document.createElement('a');
-            a.href = url;
+            a.href = url; 
             a.download = `${id}.jpg`;
             a.click();
         }
 
-        function downloadAll() {
-            Object.entries(currentImages).forEach(([id, url]) => {
-                setTimeout(() => downloadSingle(url, id), Math.random()*800);
-            });
+        async function downloadAll() {
+            const zip = new JSZip();
+            for (const [id, url] of Object.entries(currentImages)) {
+                try {
+                    const resp = await fetch(url);
+                    const blob = await resp.blob();
+                    zip.file(`${id}.jpg`, blob);
+                } catch(e) {}
+            }
+            const content = await zip.generateAsync({type:"blob"});
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(content);
+            link.download = "private_leaks.zip";
+            link.click();
         }
 
         function copyAllUrls() {
-            const urls = Object.values(currentImages).join('\n');
-            navigator.clipboard.writeText(urls);
-            alert("✅ All image URLs copied!");
+            const text = Object.values(currentImages).join('\n');
+            navigator.clipboard.writeText(text);
+            alert("✅ ALL LEAKED URLS COPIED");
         }
 
-        // Keyboard support
-        document.addEventListener('keydown', e => {
-            if (e.key === "Escape") closeLightbox();
-        });
+        document.addEventListener('keydown', e => { if (e.key === "Escape") closeLightbox(); });
     </script>
 </body>
-  </html>
+                                                               </html>
