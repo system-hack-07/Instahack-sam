@@ -18,9 +18,7 @@
         .card { transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1); }
         .card:hover { transform: translateY(-10px) rotate(1deg) scale(1.03); box-shadow: 0 0 40px rgba(168, 85, 247, 0.6); }
         .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
-        @media (max-width: 640px) { 
-            .gallery-grid { grid-template-columns: 1fr; gap: 16px; } 
-        }
+        @media (max-width: 640px) { .gallery-grid { grid-template-columns: 1fr; gap: 16px; } }
         .anime-slide { animation: animeSlide 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
         @keyframes animeSlide { from { opacity: 0; transform: translateY(40px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
         .glow-pulse { animation: glowPulse 2s infinite alternate; }
@@ -46,7 +44,7 @@
 
         <div class="glass rounded-3xl p-8 mb-10 border border-purple-500/30">
             <div class="max-w-lg mx-auto">
-                <input id="username" type="text" value="bom1::rvpjr-1781006979868-d3cc8e5388b6" 
+                <input id="username" type="text" value="bom1::v4p26-1781007295314-92c1447a6ac8" 
                        class="w-full bg-black/60 border border-purple-500/50 focus:border-pink-500 rounded-2xl px-6 py-5 text-lg outline-none transition-all focus:ring-2 focus:ring-purple-500">
                 <button onclick="startExtraction()" 
                         class="mt-6 w-full bg-gradient-to-r from-purple-600 via-pink-600 to-violet-600 hover:brightness-110 py-5 rounded-2xl font-bold text-xl flex items-center justify-center gap-4 shadow-lg shadow-purple-500/50 transition-all active:scale-95">
@@ -109,7 +107,6 @@
             status.innerHTML = `<span class="text-purple-400 animate-pulse">⚡ SCANNING LEAKED DATABASE FOR ${input}...</span>`;
 
             try {
-                // Multiple public CORS proxies fallback
                 const proxies = [
                     'https://api.allorigins.win/raw?url=',
                     'https://corsproxy.io/?',
@@ -127,12 +124,11 @@
                     } catch(e) {}
                 }
 
-                if (!html) throw new Error("All proxies failed");
+                if (!html) throw new Error("Proxies blocked");
 
-                // Parse like backend
                 const posts = extractFromHTML(html);
                 if (posts.length === 0) {
-                    status.innerHTML = `<span class="text-red-400">NO PUBLIC LEAKED ASSETS FOUND FOR THIS ID</span>`;
+                    status.innerHTML = `<span class="text-red-400">404 NOT FOUND IN PUBLIC INDEX - POSSIBLE PRIVATE BOMB ID</span>`;
                     return;
                 }
 
@@ -140,22 +136,19 @@
                 posts.forEach((p, i) => currentImages[`leak_${i}`] = p.url);
 
                 renderGallery(input, posts);
-                status.innerHTML = `<span class="text-emerald-400">✅ SCAN COMPLETE - ${posts.length} ASSETS</span>`;
+                status.innerHTML = `<span class="text-emerald-400">✅ ${posts.length} ASSETS PULLED</span>`;
             } catch(e) {
-                status.innerHTML = `<span class="text-yellow-400">Proxy blocked. Deploy Vercel backend or try VPN.</span>`;
+                status.innerHTML = `<span class="text-yellow-400">404 - Try different proxy/VPN or deploy Vercel backend</span>`;
             }
         }
 
         function extractFromHTML(html) {
             let posts = [];
-            const matches = html.match(/https:\/\/[^"']*image_versions2[^"']*candidates[^"']*url[^"']*["'][^"']*["']/gi) || [];
-            matches.forEach(m => {
-                const urlMatch = m.match(/https:\/\/[^"']+/);
-                if (urlMatch) {
-                    posts.push({id: Date.now().toString().slice(-8), url: urlMatch[0]});
-                }
+            const urlMatches = html.match(/https?:\/\/[^\s"']+\.(jpg|jpeg|png|webp)[^\s"']*/gi) || [];
+            urlMatches.forEach((url, i) => {
+                posts.push({id: i+1, url: url});
             });
-            return [...new Set(posts.map(p => p.url))].map((url, i) => ({id: i, url}));
+            return posts.slice(0, 20);
         }
 
         function renderGallery(username, posts) {
